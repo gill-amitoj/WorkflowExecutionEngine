@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow Orchestration Engine</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Workflow Orchestration Engine</h1>
+        <p class="subtitle">Your Production-Grade Backend System</p>
+        
+        <!-- Status Cards -->
+        <div class="status-cards">
+            <div class="status-card healthy">
+                <h3>API Status</h3>
+                <div class="value" id="api-status">...</div>
+            </div>
+            <div class="status-card healthy">
+                <h3>Database</h3>
+                <div class="value" id="db-status">...</div>
+            </div>
+            <div class="status-card healthy">
+                <h3>Redis Queue</h3>
+                <div class="value" id="redis-status">...</div>
+            </div>
+            <div class="status-card count">
+                <h3>Workflows</h3>
+                <div class="value" id="workflow-count">...</div>
+            </div>
+            <div class="status-card count">
+                <h3>Executions</h3>
+                <div class="value" id="execution-count">...</div>
+            </div>
+        </div>
+
+        <!-- Workflows Section -->
+        <div class="section">
+            <h2>
+                <span>📋</span> Workflows 
+                <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+            </h2>
+            <div id="workflows-list">
+                <div class="loading">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Executions Section -->
+        <div class="section">
+            <h2><span>🚀</span> Recent Executions</h2>
+            <div id="executions-list">
+                <div class="loading">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Actions Section -->
+        <div class="section">
+            <h2><span>🧪</span> Try It Out</h2>
+            <button class="btn" onclick="createDemoWorkflow()">Create Demo Workflow</button>
+            <button class="btn secondary" onclick="runWorkflow()">Run Latest Workflow</button>
+            <div id="output-area"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
