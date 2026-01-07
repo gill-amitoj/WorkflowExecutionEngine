@@ -1,0 +1,122 @@
+# Docker Compose for Workflow Orchestration Engine
+# Includes API server, worker, PostgreSQL, and Redis
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: workflow-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: workflow_engine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - workflow-network
+
+  # Redis Queue
+  redis:
+    image: redis:7-alpine
+    container_name: workflow-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - workflow-network
+
+  # API Server
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: workflow-api
+    ports:
+      - "5001:5000"
+    environment:
+      - FLASK_APP=src.api.app:create_app
+      - FLASK_ENV=development
+      - FLASK_DEBUG=true
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/workflow_engine
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=dev-secret-key-change-in-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    networks:
+      - workflow-network
+    restart: unless-stopped
+
+  # Background Worker
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: workflow-worker
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/workflow_engine
+      - REDIS_URL=redis://redis:6379/0
+      - MAX_RETRIES=3
+      - WORKER_CONCURRENCY=4
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    networks:
+      - workflow-network
+    restart: unless-stopped
+    # Scale workers for higher throughput
+    # docker-compose up --scale worker=3
+
+  # Additional worker for scaling demo
+  worker-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: workflow-worker-2
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/workflow_engine
+      - REDIS_URL=redis://redis:6379/0
+      - MAX_RETRIES=3
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    networks:
+      - workflow-network
+    restart: unless-stopped
+    profiles:
+      - scale  # Only start with: docker-compose --profile scale up
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  workflow-network:
+    driver: bridge
