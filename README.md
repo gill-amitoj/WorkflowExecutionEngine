@@ -507,8 +507,8 @@ For production deployment, consider:
 
 ## 📜 License
 
-MIT License - feel free to use for learning and interviews!
+MIT License
 
 ---
 
-Built for SWE internship portfolio demonstration. Questions or feedback welcome!
+If you have any questions or feedback, feel free to reach out!
