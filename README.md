@@ -14,13 +14,13 @@ This workflow orchestration engine demonstrates:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         API Layer (Flask)                        │
+│                         API Layer (Flask)                       │
 │  /api/v1/workflows, /api/v1/executions, /health                 │
 └─────────────────────────────────────────────────────────────────┘
                                 │
                                 ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                      Service Layer                               │
+│                      Service Layer                              │
 │  WorkflowService │ ExecutionService │ WorkflowOrchestrator      │
 └─────────────────────────────────────────────────────────────────┘
                                 │
